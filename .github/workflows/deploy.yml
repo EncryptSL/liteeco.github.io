@@ -54,4 +54,4 @@ jobs:
           # Crucial for User/Organization Pages (liteeco.github.io)
           cname: liteeco.github.io
           # Deploy directly to the main branch for 'user.github.io' repos
-          publish_branch: main
+          publish_branch: gh-pages
