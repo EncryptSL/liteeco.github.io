@@ -1,0 +1,57 @@
+name: Deploy Docusaurus to GitHub Pages
+
+# Specifies when the action should run
+on:
+  # Run on pushes to the 'main' branch
+  push:
+    branches:
+      - main # Change to 'master' if that is your primary branch
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Ensures that only one deploy job is running at a time
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  deployment:
+    # Use the latest Ubuntu runner
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # 'fetch-depth: 0' is crucial for proper branch history when deploying to gh-pages
+        with:
+          fetch-depth: 0 
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use a recent, stable Node.js version
+          cache: npm # Cache dependencies for faster builds
+
+      # Step 3: Install project dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Build the Docusaurus site
+      # This command generates the static files into the 'build' directory
+      - name: Build Docusaurus project
+        run: npm run build
+
+      # Step 5: Deploy to GitHub Pages
+      - name: Deploy to Pages
+        # Use the dedicated action for publishing to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # The directory where Docusaurus outputs the built files
+          publish_dir: ./build
+          # Crucial for User/Organization Pages (liteeco.github.io)
+          cname: liteeco.github.io
+          # Deploy directly to the main branch for 'user.github.io' repos
+          publish_branch: main
