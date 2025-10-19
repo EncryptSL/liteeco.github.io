@@ -1,57 +1,61 @@
-name: Deploy Docusaurus to GitHub Pages
+name: Deploy Docusaurus to Organization Pages
 
-# Specifies when the action should run
+# Triggers the workflow on pushes to the main branch or manual execution
 on:
-  # Run on pushes to the 'main' branch
   push:
     branches:
-      - main # Change to 'master' if that is your primary branch
-  # Allows you to run this workflow manually from the Actions tab
+      - main # Ensure this is your primary branch (e.g., main or master)
   workflow_dispatch:
 
-# Ensures that only one deploy job is running at a time
+# Permissions: 'pages' and 'id-token' are mandatory for the official deploy-pages@v4 action.
+# 'contents: read' is usually the default, but we specify it for clarity.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Ensures that only one deployment job runs at a time
 concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   deployment:
-    # Use the latest Ubuntu runner
     runs-on: ubuntu-latest
+    
+    # Environment step is crucial for the official deploy-pages action
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      # Step 1: Checkout the repository code
       - name: Checkout repository
         uses: actions/checkout@v4
-        # 'fetch-depth: 0' is crucial for proper branch history when deploying to gh-pages
         with:
+          # Fetching full history is not necessary here
           fetch-depth: 0 
 
-      # Step 2: Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Use a recent, stable Node.js version
-          cache: npm # Cache dependencies for faster builds
+          node-version: '20'
+          cache: npm
 
-      # Step 3: Install project dependencies
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies and Build Docusaurus site
+        run: |
+          npm install
+          npm run build # This command compiles static files into the 'build' folder
 
-      # Step 4: Build the Docusaurus site
-      # This command generates the static files into the 'build' directory
-      - name: Build Docusaurus project
-        run: npm run build
-
-      # Step 5: Deploy to GitHub Pages
-      - name: Deploy to Pages
-        # Use the dedicated action for publishing to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      # ➡️ Step 1: Upload the built files as an artifact
+      # This step does not require Git write permissions, only artifact upload access.
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # The directory where Docusaurus outputs the built files
-          publish_dir: ./build
-          # Crucial for User/Organization Pages (liteeco.github.io)
-          cname: liteeco.github.io
-          # Deploy directly to the main branch for 'user.github.io' repos
-          publish_branch: gh-pages
+          path: ./build # The directory where Docusaurus stores the build output (default is 'build')
+
+      # ➡️ Step 2: Deploy the artifact to Pages
+      # This official action takes the artifact and deploys it using GitHub's internal mechanism,
+      # bypassing the strict Git push permissions that often cause the 403 error.
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
