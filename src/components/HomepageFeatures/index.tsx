@@ -5,14 +5,14 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  Image: string,
   description: ReactNode;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: 'Easy to Setup',
-    Svg: require('@site/static/img/light.svg').default,
+    Image: require('@site/static/img/light.png').default,
     description: (
       <>
         LiteEco was designed to be easy to use and lightweight, without bloatware,
@@ -22,7 +22,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Compatibility',
-    Svg: require('@site/static/img/brands.svg').default,
+    Image: require('@site/static/img/brands.png').default,
     description: (
       <>
         Plugin supports Paper and connection to MariaDB, MySQL, SQLite and PostgreSQL.
@@ -32,7 +32,7 @@ const FeatureList: FeatureItem[] = [
   
   {
     title: 'Powered by Performance',
-    Svg: require('@site/static/img/performance.svg').default,
+    Image: require('@site/static/img/performance.png').default,
     description: (
       <>
         Asynchronous and stores data in memory, which it then writes to the database.
@@ -42,11 +42,11 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, Image, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <img src={Image} alt={title} style={{ height: '200px' }} />
       </div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
