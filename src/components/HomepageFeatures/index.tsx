@@ -38,8 +38,8 @@ const FeatureList: FeatureItem[] = [
     Image: require('@site/static/img/performance.png').default,
     description: (
       <>
-        Our architecture is built for speed. By utilizing <strong>asynchronous processing</strong> 
-        and caching data directly in memory, LiteEco ensures <strong>zero server lag</strong> 
+        Our architecture is built for speed. By utilizing <strong>asynchronous processing </strong> 
+        and caching data directly in memory, LiteEco ensures <strong>zero server lag </strong> 
         and minimizes database I/O, providing a flawless player experience.
       </>
     ),
